@@ -1,4 +1,4 @@
-const CACHE_NAME = "end-zone-revenge-v2";
+const CACHE_NAME = "end-zone-revenge-v3";
 const APP_SHELL = [
   "./",
   "./index.html",

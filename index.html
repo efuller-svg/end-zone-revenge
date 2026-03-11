@@ -145,15 +145,13 @@
       <p class="eyebrow">Unlocked clip</p>
       <h2 id="modalTitle">Watch it again</h2>
       <div class="video-frame">
-        <iframe
-          id="replayFrame"
-          title="Zabien Brown pick-six replay"
-          src=""
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen
-        ></iframe>
+        <div
+          id="replayPlayer"
+          class="replay-player"
+          aria-label="Zabien Brown pick-six replay"
+        ></div>
       </div>
-      <p class="modal-note">
+      <p class="modal-note" id="replayNote">
         Replay opens automatically after a pick-six. If Safari blocks sound, tap the video to unmute.
       </p>
     </div>

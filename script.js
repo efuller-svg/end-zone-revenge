@@ -21,7 +21,13 @@ const playCall = document.getElementById("playCall");
 const streakValue = document.getElementById("streakValue");
 const lockerText = document.getElementById("lockerText");
 const videoModal = document.getElementById("videoModal");
-const replayFrame = document.getElementById("replayFrame");
+const replayNote = document.getElementById("replayNote");
+
+const REPLAY_VIDEO_ID = "PFGQqB8SnEY";
+const REPLAY_AUTOPLAY_MESSAGE = "Opening replay. If Safari still pauses it, tap the video once.";
+const REPLAY_BLOCKED_MESSAGE = "Safari blocked autoplay on this run. Tap the video once and it will start.";
+const REPLAY_READY_MESSAGE = "Replay is ready. If it stays muted, tap the video player for sound.";
+const REPLAY_ERROR_MESSAGE = "Replay could not load from YouTube just now. Try the replay button again.";
 
 const FIELD = {
   left: 70,
@@ -148,8 +154,12 @@ const state = {
   particles: [],
   flash: 0,
   lastResult: null,
-  replayTimerId: null,
 };
+
+let replayPlayer = null;
+let replayPlayerPromise = null;
+let youTubeApiPromise = null;
+let pendingReplayOptions = null;
 
 const control = {
   pointerTarget: { x: 480, y: 88 },
@@ -348,10 +358,6 @@ function resetActors() {
 }
 
 function startRound() {
-  if (state.replayTimerId) {
-    window.clearTimeout(state.replayTimerId);
-    state.replayTimerId = null;
-  }
   closeReplayModal();
   selectNewPlay();
   state.phase = "live";
@@ -445,16 +451,12 @@ function finishPickSix() {
   showOverlay({
     eyebrow: "Pick-six secured",
     title: "House Call. Dad Is Cooked.",
-    body: "You jumped it in the end zone and finished the job. Replay booth opening now, then you can run it back.",
+    body: "You jumped it in the end zone and finished the job. Replay booth opening now.",
     startLabel: "Run it back",
     showReplay: true,
   });
   setCommentary(randomItem(returnCalls));
-
-  state.replayTimerId = window.setTimeout(() => {
-    state.replayTimerId = null;
-    openReplayModal({ autoPlayMuted: true });
-  }, 900);
+  openReplayModal({ autoPlayMuted: true });
 }
 
 function finishTouchdown() {
@@ -827,24 +829,124 @@ function drawParticles() {
   ctx.globalAlpha = 1;
 }
 
+function loadYouTubeApi() {
+  if (window.YT && typeof window.YT.Player === "function") {
+    return Promise.resolve();
+  }
+
+  if (youTubeApiPromise) {
+    return youTubeApiPromise;
+  }
+
+  youTubeApiPromise = new Promise((resolve, reject) => {
+    const existingHandler = window.onYouTubeIframeAPIReady;
+
+    window.onYouTubeIframeAPIReady = () => {
+      if (typeof existingHandler === "function") {
+        existingHandler();
+      }
+      resolve();
+    };
+
+    const existingScript = document.querySelector('script[data-youtube-iframe-api="true"]');
+    if (existingScript) {
+      return;
+    }
+
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    tag.async = true;
+    tag.dataset.youtubeIframeApi = "true";
+    tag.onerror = () => reject(new Error("YouTube API failed to load"));
+    document.head.appendChild(tag);
+  });
+
+  return youTubeApiPromise;
+}
+
+function handleReplayAutoplayBlocked() {
+  replayNote.textContent = REPLAY_BLOCKED_MESSAGE;
+}
+
+function ensureReplayPlayer() {
+  if (replayPlayerPromise) {
+    return replayPlayerPromise;
+  }
+
+  replayPlayerPromise = loadYouTubeApi().then(() => new Promise((resolve) => {
+    replayPlayer = new window.YT.Player("replayPlayer", {
+      videoId: REPLAY_VIDEO_ID,
+      width: "100%",
+      height: "100%",
+      host: "https://www.youtube.com",
+      playerVars: {
+        autoplay: 0,
+        controls: 1,
+        playsinline: 1,
+        rel: 0,
+        origin: window.location.origin,
+      },
+      events: {
+        onReady: (event) => {
+          replayNote.textContent = REPLAY_READY_MESSAGE;
+          resolve(event.target);
+        },
+        onAutoplayBlocked: handleReplayAutoplayBlocked,
+        onError: () => {
+          replayNote.textContent = REPLAY_ERROR_MESSAGE;
+        },
+      },
+    });
+  }));
+
+  return replayPlayerPromise;
+}
+
+function playReplay(options = {}) {
+  if (!replayPlayer) {
+    return;
+  }
+
+  const { autoPlayMuted = true } = options;
+
+  replayNote.textContent = REPLAY_AUTOPLAY_MESSAGE;
+
+  if (autoPlayMuted) {
+    replayPlayer.mute();
+  } else {
+    replayPlayer.unMute();
+  }
+
+  replayPlayer.loadVideoById(REPLAY_VIDEO_ID);
+  replayPlayer.playVideo();
+}
+
 function openReplayModal(options = {}) {
   if (!state.replayUnlocked) {
     return;
   }
 
-  const { autoPlayMuted = false } = options;
-  const params = new URLSearchParams({
-    autoplay: "1",
-    rel: "0",
-    playsinline: "1",
-  });
-
-  if (autoPlayMuted) {
-    params.set("mute", "1");
-  }
-
-  replayFrame.src = `https://www.youtube-nocookie.com/embed/PFGQqB8SnEY?${params.toString()}`;
   videoModal.hidden = false;
+  pendingReplayOptions = {
+    autoPlayMuted: true,
+    ...options,
+  };
+  replayNote.textContent = REPLAY_AUTOPLAY_MESSAGE;
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => {
+      ensureReplayPlayer()
+        .then(() => {
+          if (!videoModal.hidden && pendingReplayOptions) {
+            playReplay(pendingReplayOptions);
+            pendingReplayOptions = null;
+          }
+        })
+        .catch(() => {
+          replayNote.textContent = REPLAY_ERROR_MESSAGE;
+        });
+    });
+  });
 }
 
 function setBoostState(isActive) {
@@ -853,11 +955,10 @@ function setBoostState(isActive) {
 }
 
 function closeReplayModal() {
-  if (state.replayTimerId) {
-    window.clearTimeout(state.replayTimerId);
-    state.replayTimerId = null;
+  pendingReplayOptions = null;
+  if (replayPlayer && typeof replayPlayer.stopVideo === "function") {
+    replayPlayer.stopVideo();
   }
-  replayFrame.src = "";
   videoModal.hidden = true;
 }
 
