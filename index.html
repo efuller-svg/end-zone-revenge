@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>End Zone Revenge</title>
+  <meta name="theme-color" content="#8c1d31">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="End Zone Revenge">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Custom dad-torment simulator</p>
+        <h1>End Zone Revenge</h1>
+        <p class="lede">
+          Tennessee gets one last shot. Alabama gets one last laugh. Patrol the end zone,
+          jump the route, and unlock the real Zabien Brown replay when you take it to the house.
+        </p>
+      </div>
+
+      <section class="scoreboard" aria-label="Scoreboard">
+        <div class="score-team score-team--home">
+          <span class="team-label">Alabama</span>
+          <strong id="alabamaScore">17</strong>
+        </div>
+        <div class="score-meta">
+          <span id="quarterClock">2Q | 0:04</span>
+          <span id="downText">3rd &amp; Goal</span>
+        </div>
+        <div class="score-team score-team--away">
+          <span class="team-label">Tennessee</span>
+          <strong id="tennesseeScore">7</strong>
+        </div>
+      </section>
+    </header>
+
+    <main class="layout">
+      <section class="play-panel">
+        <div class="hud">
+          <div class="status-block">
+            <span class="status-label">Situation</span>
+            <strong id="driveText">Final play before halftime</strong>
+          </div>
+          <div class="status-block">
+            <span class="status-label">Play Call</span>
+            <strong id="playCall">Choose a mode, then snap it</strong>
+          </div>
+          <div class="status-block">
+            <span class="status-label">Torment Streak</span>
+            <strong id="streakValue">0</strong>
+          </div>
+        </div>
+
+        <div class="field-wrap">
+          <canvas
+            id="gameCanvas"
+            width="960"
+            height="540"
+            aria-label="A football game where you defend Alabama's end zone and try to intercept Tennessee's pass"
+          ></canvas>
+
+          <div class="overlay" id="messageOverlay">
+            <p class="overlay-eyebrow" id="messageEyebrow">Bryant-Denny panic mode</p>
+            <h2 id="messageTitle">Protect the paint. Break Dad's heart.</h2>
+            <p id="messageBody">
+              Use your mouse, finger, or arrow keys to move Alabama's defender. Hold BOOST
+              after the throw for a burst and sit on the route.
+            </p>
+            <div class="overlay-actions">
+              <button id="startButton" class="primary-button" type="button">Snap the ball</button>
+              <button id="replayButton" class="secondary-button" type="button" hidden>Watch the replay</button>
+            </div>
+          </div>
+
+          <button id="boostButton" class="boost-button" type="button" aria-label="Hold for speed burst">
+            BOOST
+          </button>
+        </div>
+
+        <div class="control-strip">
+          <div class="mode-picker" aria-label="Difficulty modes">
+            <button class="pill active" type="button" data-difficulty="kid">Kid Mode</button>
+            <button class="pill" type="button" data-difficulty="rivalry">Rivalry Mode</button>
+            <button class="pill" type="button" data-difficulty="chaos">Chaos Mode</button>
+          </div>
+          <p class="control-copy">
+            Tap, drag, or use keys to move. Hold <span>BOOST</span> after the throw.
+          </p>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="card">
+          <div class="card-head">
+            <p class="eyebrow">Announcer Booth</p>
+            <h2>Trash Talk Feed</h2>
+          </div>
+          <p class="commentary-text" id="commentaryText">
+            Tennessee has one snap left. Your entire job is to ruin it.
+          </p>
+          <ul class="feed-list" id="feedList"></ul>
+        </section>
+
+        <section class="card">
+          <div class="card-head">
+            <p class="eyebrow">Scouting Report</p>
+            <h2>How To Win</h2>
+          </div>
+          <ul class="tips-list">
+            <li>Read the route art before the snap. Dad only gets one throw.</li>
+            <li>Kid Mode highlights the danger route the whole way.</li>
+            <li>Once you pick it, hold BOOST and sprint for daylight.</li>
+          </ul>
+        </section>
+
+        <section class="card locker-card">
+          <div class="card-head">
+            <p class="eyebrow">Clip Locker</p>
+            <h2>Zabien Brown Mode</h2>
+          </div>
+          <p id="lockerText">
+            The real replay unlocks after your first end-zone interception return.
+          </p>
+          <button id="lockerButton" class="secondary-button" type="button" disabled>Replay locked</button>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <div class="modal" id="videoModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button id="closeModalButton" class="close-button" type="button" aria-label="Close replay">Close</button>
+      <p class="eyebrow">Unlocked clip</p>
+      <h2 id="modalTitle">Watch it again</h2>
+      <div class="video-frame">
+        <iframe
+          id="replayFrame"
+          title="Zabien Brown pick-six replay"
+          src=""
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+      <p class="modal-note">
+        Embedded from YouTube for family-use replay mode.
+      </p>
+    </div>
+  </div>
+
+  <script src="./script.js" defer></script>
+</body>
+</html>
