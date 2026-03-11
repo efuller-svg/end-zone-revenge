@@ -148,6 +148,7 @@ const state = {
   particles: [],
   flash: 0,
   lastResult: null,
+  replayTimerId: null,
 };
 
 const control = {
@@ -347,6 +348,10 @@ function resetActors() {
 }
 
 function startRound() {
+  if (state.replayTimerId) {
+    window.clearTimeout(state.replayTimerId);
+    state.replayTimerId = null;
+  }
   closeReplayModal();
   selectNewPlay();
   state.phase = "live";
@@ -440,11 +445,16 @@ function finishPickSix() {
   showOverlay({
     eyebrow: "Pick-six secured",
     title: "House Call. Dad Is Cooked.",
-    body: "You jumped it in the end zone and finished the job. Fire up the replay, then run it back.",
+    body: "You jumped it in the end zone and finished the job. Replay booth opening now, then you can run it back.",
     startLabel: "Run it back",
     showReplay: true,
   });
   setCommentary(randomItem(returnCalls));
+
+  state.replayTimerId = window.setTimeout(() => {
+    state.replayTimerId = null;
+    openReplayModal({ autoPlayMuted: true });
+  }, 900);
 }
 
 function finishTouchdown() {
@@ -817,12 +827,23 @@ function drawParticles() {
   ctx.globalAlpha = 1;
 }
 
-function openReplayModal() {
+function openReplayModal(options = {}) {
   if (!state.replayUnlocked) {
     return;
   }
 
-  replayFrame.src = "https://www.youtube-nocookie.com/embed/PFGQqB8SnEY?autoplay=1&rel=0";
+  const { autoPlayMuted = false } = options;
+  const params = new URLSearchParams({
+    autoplay: "1",
+    rel: "0",
+    playsinline: "1",
+  });
+
+  if (autoPlayMuted) {
+    params.set("mute", "1");
+  }
+
+  replayFrame.src = `https://www.youtube-nocookie.com/embed/PFGQqB8SnEY?${params.toString()}`;
   videoModal.hidden = false;
 }
 
@@ -832,6 +853,10 @@ function setBoostState(isActive) {
 }
 
 function closeReplayModal() {
+  if (state.replayTimerId) {
+    window.clearTimeout(state.replayTimerId);
+    state.replayTimerId = null;
+  }
   replayFrame.src = "";
   videoModal.hidden = true;
 }
