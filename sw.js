@@ -1,9 +1,12 @@
-const CACHE_NAME = "end-zone-revenge-v3";
+const CACHE_NAME = "end-zone-revenge-v4";
 const APP_SHELL = [
   "./",
   "./index.html",
   "./styles.css",
   "./script.js",
+  "./mascot-mayhem.html",
+  "./mascot-mayhem.css",
+  "./mascot-mayhem.js",
   "./manifest.webmanifest",
   "./icon.svg",
   "./icons/icon-192.png",

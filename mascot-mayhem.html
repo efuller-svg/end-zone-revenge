@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Mascot Mayhem</title>
+  <meta name="theme-color" content="#1f3c88">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mascot Mayhem">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./mascot-mayhem.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">Parody SEC-inspired backyard brawler</p>
+        <h1>Mascot Mayhem</h1>
+        <p class="lede">
+          Pick a mascot-inspired fighter, throw hands in a cartoon stadium, and settle
+          conference trash talk the fast way. One local player. One CPU rival. Zero patience.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <a class="button-link secondary-link" href="./index.html">Back to End Zone Revenge</a>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="selection-panel card">
+        <div class="section-head">
+          <p class="eyebrow">Character Select</p>
+          <h2>Choose Your Mascot</h2>
+        </div>
+
+        <div class="fighter-grid" id="fighterGrid" aria-label="Choose a fighter"></div>
+
+        <div class="selection-summary">
+          <div class="summary-card">
+            <span class="summary-label">Player</span>
+            <strong id="playerChoice">Crimson Elephant</strong>
+            <p id="playerBlurb">Heavy hands, big health bar, and a stampede special.</p>
+          </div>
+          <div class="summary-card">
+            <span class="summary-label">CPU Rival</span>
+            <strong id="cpuChoice">Volunteer Hound</strong>
+            <p id="cpuBlurb">Fast feet, quick jabs, and a mean spin special.</p>
+          </div>
+        </div>
+
+        <div class="selector-actions">
+          <button id="shuffleOpponentButton" class="secondary-link" type="button">Shuffle Opponent</button>
+          <button id="startFightButton" class="primary-link" type="button">Start Fight</button>
+        </div>
+      </section>
+
+      <section class="arena-panel">
+        <div class="hud-strip">
+          <div class="health-panel">
+            <div class="health-meta">
+              <span class="summary-label">Player</span>
+              <strong id="playerNameplate">Crimson Elephant</strong>
+            </div>
+            <div class="health-track">
+              <div id="playerHealthFill" class="health-fill health-fill--player"></div>
+            </div>
+          </div>
+
+          <div class="timer-card">
+            <span class="summary-label">Round Timer</span>
+            <strong id="roundTimer">60</strong>
+          </div>
+
+          <div class="health-panel">
+            <div class="health-meta health-meta--right">
+              <span class="summary-label">CPU</span>
+              <strong id="cpuNameplate">Volunteer Hound</strong>
+            </div>
+            <div class="health-track health-track--cpu">
+              <div id="cpuHealthFill" class="health-fill health-fill--cpu"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arena-frame card">
+          <canvas
+            id="fightCanvas"
+            width="1280"
+            height="720"
+            aria-label="A cartoon fighting game with mascot-inspired SEC rivals"
+          ></canvas>
+
+          <div class="fight-overlay" id="fightOverlay">
+            <p class="eyebrow" id="overlayEyebrow">Mascot fight night</p>
+            <h2 id="overlayTitle">Pick a fighter and start the chaos.</h2>
+            <p id="overlayBody">
+              Use left and right to move, jump to dodge, and jab, heavy, or special to win the round.
+            </p>
+            <div class="overlay-actions">
+              <button id="overlayPrimaryButton" class="primary-link" type="button">Start Fight</button>
+              <button id="overlaySecondaryButton" class="secondary-link" type="button">Shuffle Rival</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="touch-controls" aria-label="Touch controls">
+          <div class="control-cluster">
+            <button class="touch-button move-button" data-hold-control="left" type="button">Left</button>
+            <button class="touch-button move-button" data-action="jump" type="button">Jump</button>
+            <button class="touch-button move-button" data-hold-control="right" type="button">Right</button>
+          </div>
+          <div class="control-cluster control-cluster--attack">
+            <button class="touch-button attack-button attack-button--jab" data-action="jab" type="button">Jab</button>
+            <button class="touch-button attack-button attack-button--heavy" data-action="heavy" type="button">Heavy</button>
+            <button class="touch-button attack-button attack-button--special" data-action="special" type="button">Special</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="card">
+          <div class="section-head">
+            <p class="eyebrow">Controls</p>
+            <h2>How To Throw Hands</h2>
+          </div>
+          <ul class="info-list">
+            <li>`A` / `D` or arrow keys move left and right.</li>
+            <li>`W`, up arrow, or the on-screen jump button hops over attacks.</li>
+            <li>`J` = jab, `K` = heavy, `L` = special.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <p class="eyebrow">Fight Card</p>
+            <h2>Signature Move</h2>
+          </div>
+          <p class="special-name" id="specialName">Tusk Stampede</p>
+          <p class="battle-call" id="battleCall">
+            Crimson Elephant enters first. Pick a rival and start the round.
+          </p>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <p class="eyebrow">Roster Note</p>
+            <h2>Shareable Version</h2>
+          </div>
+          <p class="battle-call">
+            These are original, mascot-inspired fighters, not official team art. That keeps the joke easy to share.
+          </p>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script src="./mascot-mayhem.js" defer></script>
+</body>
+</html>

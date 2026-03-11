@@ -68,6 +68,13 @@ body::before {
   max-width: 720px;
 }
 
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
 .eyebrow {
   margin: 0 0 8px;
   font-size: 0.82rem;
@@ -288,14 +295,16 @@ button {
 .primary-button,
 .secondary-button,
 .pill,
-.close-button {
+.close-button,
+.button-link {
   border-radius: 999px;
   font-weight: 800;
   transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, opacity 160ms ease;
 }
 
 .primary-button,
-.secondary-button {
+.secondary-button,
+.button-link {
   padding: 14px 22px;
 }
 
@@ -311,6 +320,13 @@ button {
   border: 1px solid rgba(20, 14, 8, 0.12);
 }
 
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .secondary-button[disabled] {
   cursor: not-allowed;
   opacity: 0.55;
@@ -318,6 +334,7 @@ button {
 
 .primary-button:hover,
 .secondary-button:hover:not([disabled]),
+.button-link:hover,
 .pill:hover,
 .close-button:hover {
   transform: translateY(-1px);

@@ -2,6 +2,11 @@
 
 Small static browser game inspired by Alabama's end-zone interception replay against Tennessee.
 
+## Games
+
+- [End Zone Revenge](/Users/williamfullerlfg/Documents/New project/index.html)
+- [Mascot Mayhem](/Users/williamfullerlfg/Documents/New project/mascot-mayhem.html)
+
 ## Run it
 
 Open [index.html](/Users/williamfullerlfg/Documents/New project/index.html) directly in a browser, or serve the folder:
